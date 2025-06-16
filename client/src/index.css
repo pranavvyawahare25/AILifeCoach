@@ -54,7 +54,7 @@
   }
 
   body {
-    @apply font-sans antialiased bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen;
+    @apply font-sans antialiased bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-800 min-h-screen text-foreground;
   }
 }
 

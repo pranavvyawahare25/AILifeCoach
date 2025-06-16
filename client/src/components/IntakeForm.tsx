@@ -7,6 +7,7 @@ import { Search, ArrowRight } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import VoiceRecorder from "./VoiceRecorder";
 
 interface FormData {
   problem: string;
@@ -54,6 +55,13 @@ export default function IntakeForm({ onAnalysisStart, onAnalysisComplete }: Inta
     }
   });
 
+  const handleVoiceTranscript = (transcript: string) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      problem: prev.problem ? prev.problem + ' ' + transcript : transcript 
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -79,39 +87,47 @@ export default function IntakeForm({ onAnalysisStart, onAnalysisComplete }: Inta
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
       <div className="flex items-center space-x-3 mb-6">
-        <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+        <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center">
           <Search className="text-primary w-6 h-6" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Analyze Your Challenge</h2>
-          <p className="text-gray-600">Describe a recurring issue you'd like to overcome</p>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Analyze Your Challenge</h2>
+          <p className="text-gray-600 dark:text-gray-300">Describe a recurring issue you'd like to overcome</p>
         </div>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="problem" className="text-sm font-medium text-gray-700 mb-2">
+          <Label htmlFor="problem" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             What's bothering you?
           </Label>
-          <Textarea 
-            id="problem"
-            value={formData.problem}
-            onChange={(e) => setFormData(prev => ({ ...prev, problem: e.target.value }))}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-            rows={4}
-            placeholder="e.g., I sleep too late every night and feel tired the next day..."
-          />
+          <div className="relative">
+            <Textarea 
+              id="problem"
+              value={formData.problem}
+              onChange={(e) => setFormData(prev => ({ ...prev, problem: e.target.value }))}
+              className="w-full px-4 py-3 pr-14 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent resize-none dark:bg-gray-800 dark:text-white"
+              rows={4}
+              placeholder="e.g., I sleep too late every night and feel tired the next day... Or click the mic to speak!"
+            />
+            <div className="absolute top-3 right-3">
+              <VoiceRecorder 
+                onTranscript={handleVoiceTranscript}
+                disabled={analyzeMutation.isPending}
+              />
+            </div>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label className="text-sm font-medium text-gray-700 mb-2">
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               How long has this been happening?
             </Label>
             <Select value={formData.duration} onValueChange={(value) => setFormData(prev => ({ ...prev, duration: value }))}>
-              <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+              <SelectTrigger className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:text-white">
                 <SelectValue placeholder="Select duration" />
               </SelectTrigger>
               <SelectContent>
@@ -124,11 +140,11 @@ export default function IntakeForm({ onAnalysisStart, onAnalysisComplete }: Inta
             </Select>
           </div>
           <div>
-            <Label className="text-sm font-medium text-gray-700 mb-2">
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Impact Level
             </Label>
             <Select value={formData.impact} onValueChange={(value) => setFormData(prev => ({ ...prev, impact: value }))}>
-              <SelectTrigger className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent">
+              <SelectTrigger className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:text-white">
                 <SelectValue placeholder="Select impact" />
               </SelectTrigger>
               <SelectContent>
