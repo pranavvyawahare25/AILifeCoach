@@ -10,7 +10,7 @@ export const users = pgTable("users", {
 
 export const sessions = pgTable("sessions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
+  userId: integer("user_id").references(() => users.id).notNull(),
   title: text("title").notNull(),
   problem: text("problem").notNull(),
   duration: text("duration").notNull(),
@@ -25,7 +25,7 @@ export const sessions = pgTable("sessions", {
 
 export const journalEntries = pgTable("journal_entries", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
+  userId: integer("user_id").references(() => users.id).notNull(),
   content: text("content").notNull(),
   reflection: text("reflection"),
   microAdvice: text("micro_advice"),

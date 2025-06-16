@@ -12,6 +12,8 @@ import {
   type Nudge,
   type InsertNudge
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -31,147 +33,96 @@ export interface IStorage {
   getRandomNudge(): Promise<Nudge | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private sessions: Map<number, Session>;
-  private journalEntries: Map<number, JournalEntry>;
-  private nudges: Map<number, Nudge>;
-  private currentUserId: number;
-  private currentSessionId: number;
-  private currentJournalId: number;
-  private currentNudgeId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.sessions = new Map();
-    this.journalEntries = new Map();
-    this.nudges = new Map();
-    this.currentUserId = 1;
-    this.currentSessionId = 1;
-    this.currentJournalId = 1;
-    this.currentNudgeId = 1;
-
-    // Initialize with some default nudges
-    this.initializeNudges();
-  }
-
-  private initializeNudges() {
-    const defaultNudges = [
-      "Small consistent actions create extraordinary results. What one tiny step can you take today?",
-      "Progress, not perfection. Every small step forward is a victory worth celebrating.",
-      "Your future self is counting on the choices you make today. Make them proud.",
-      "The best time to plant a tree was 20 years ago. The second best time is now.",
-      "You don't have to be great to get started, but you have to get started to be great.",
-      "Every expert was once a beginner. Every pro was once an amateur.",
-      "The journey of a thousand miles begins with a single step. Take yours today.",
-      "Success is not final, failure is not fatal: it is the courage to continue that counts."
-    ];
-
-    defaultNudges.forEach(message => {
-      const nudge: Nudge = {
-        id: this.currentNudgeId++,
-        message,
-        category: "motivation",
-        createdAt: new Date()
-      };
-      this.nudges.set(nudge.id, nudge);
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async createSession(insertSession: InsertSession): Promise<Session> {
-    const id = this.currentSessionId++;
-    const session: Session = { 
-      ...insertSession, 
-      id, 
-      createdAt: new Date()
-    };
-    this.sessions.set(id, session);
+    const [session] = await db
+      .insert(sessions)
+      .values(insertSession)
+      .returning();
     return session;
   }
 
   async getSessionsByUserId(userId: number): Promise<Session[]> {
-    return Array.from(this.sessions.values())
-      .filter(session => session.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return await db
+      .select()
+      .from(sessions)
+      .where(eq(sessions.userId, userId))
+      .orderBy(sessions.createdAt);
   }
 
   async getSession(id: number): Promise<Session | undefined> {
-    return this.sessions.get(id);
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, id));
+    return session || undefined;
   }
 
   async createJournalEntry(insertEntry: InsertJournalEntry): Promise<JournalEntry> {
-    const id = this.currentJournalId++;
-    const entry: JournalEntry = {
-      ...insertEntry,
-      id,
-      reflection: null,
-      microAdvice: null,
-      createdAt: new Date()
-    };
-    this.journalEntries.set(id, entry);
+    const [entry] = await db
+      .insert(journalEntries)
+      .values(insertEntry)
+      .returning();
     return entry;
   }
 
   async getJournalEntriesByUserId(userId: number): Promise<JournalEntry[]> {
-    return Array.from(this.journalEntries.values())
-      .filter(entry => entry.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return await db
+      .select()
+      .from(journalEntries)
+      .where(eq(journalEntries.userId, userId))
+      .orderBy(journalEntries.createdAt);
   }
 
   async updateJournalEntry(id: number, updates: Partial<JournalEntry>): Promise<JournalEntry | undefined> {
-    const entry = this.journalEntries.get(id);
-    if (!entry) return undefined;
-    
-    const updatedEntry = { ...entry, ...updates };
-    this.journalEntries.set(id, updatedEntry);
-    return updatedEntry;
+    const [updatedEntry] = await db
+      .update(journalEntries)
+      .set(updates)
+      .where(eq(journalEntries.id, id))
+      .returning();
+    return updatedEntry || undefined;
   }
 
   async getTodaysNudge(): Promise<Nudge | undefined> {
-    const nudgesArray = Array.from(this.nudges.values());
-    if (nudgesArray.length === 0) return undefined;
+    const allNudges = await db.select().from(nudges);
+    if (allNudges.length === 0) return undefined;
     
     // Simple daily nudge selection based on date
     const today = new Date().getDate();
-    const index = today % nudgesArray.length;
-    return nudgesArray[index];
+    const index = today % allNudges.length;
+    return allNudges[index];
   }
 
   async createNudge(insertNudge: InsertNudge): Promise<Nudge> {
-    const id = this.currentNudgeId++;
-    const nudge: Nudge = {
-      ...insertNudge,
-      id,
-      createdAt: new Date()
-    };
-    this.nudges.set(id, nudge);
+    const [nudge] = await db
+      .insert(nudges)
+      .values(insertNudge)
+      .returning();
     return nudge;
   }
 
   async getRandomNudge(): Promise<Nudge | undefined> {
-    const nudgesArray = Array.from(this.nudges.values());
-    if (nudgesArray.length === 0) return undefined;
+    const allNudges = await db.select().from(nudges);
+    if (allNudges.length === 0) return undefined;
     
-    const randomIndex = Math.floor(Math.random() * nudgesArray.length);
-    return nudgesArray[randomIndex];
+    const randomIndex = Math.floor(Math.random() * allNudges.length);
+    return allNudges[randomIndex];
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
