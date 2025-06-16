@@ -5,6 +5,7 @@ import { Pen, Plus } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import VoiceRecorder from "./VoiceRecorder";
 
 export default function Journal() {
   const [entry, setEntry] = useState("");
@@ -36,6 +37,10 @@ export default function Journal() {
     }
   });
 
+  const handleVoiceTranscript = (transcript: string) => {
+    setEntry(prev => prev ? prev + ' ' + transcript : transcript);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -52,22 +57,30 @@ export default function Journal() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
       <div className="flex items-center space-x-3 mb-4">
-        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+        <div className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center">
           <Pen className="text-primary w-5 h-5" />
         </div>
-        <h3 className="font-bold text-gray-800">Quick Journal</h3>
+        <h3 className="font-bold text-gray-800 dark:text-white">Quick Journal</h3>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Textarea 
-          value={entry}
-          onChange={(e) => setEntry(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-          rows={3}
-          placeholder="How are you feeling today? Any progress on your goals?"
-        />
+        <div className="relative">
+          <Textarea 
+            value={entry}
+            onChange={(e) => setEntry(e.target.value)}
+            className="w-full px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none dark:bg-gray-800 dark:text-white"
+            rows={3}
+            placeholder="How are you feeling today? Any progress on your goals? Or click the mic to speak!"
+          />
+          <div className="absolute top-2 right-2">
+            <VoiceRecorder 
+              onTranscript={handleVoiceTranscript}
+              disabled={journalMutation.isPending}
+            />
+          </div>
+        </div>
         <Button 
           type="submit"
           disabled={journalMutation.isPending}

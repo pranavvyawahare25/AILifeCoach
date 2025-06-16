@@ -57,19 +57,19 @@ export default function DailyNudge() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
       <div className="flex items-center space-x-3 mb-4">
-        <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+        <div className="w-10 h-10 bg-accent/10 dark:bg-accent/20 rounded-lg flex items-center justify-center">
           <Star className="text-accent w-5 h-5" />
         </div>
         <div>
-          <h3 className="font-bold text-gray-800">Today's Nudge</h3>
-          <p className="text-sm text-gray-600">{nudge.date}</p>
+          <h3 className="font-bold text-gray-800 dark:text-white">Today's Nudge</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">{nudge.date}</p>
         </div>
       </div>
       
-      <div className="bg-gradient-to-r from-accent/10 to-secondary/10 rounded-xl p-4 mb-4">
-        <p className="text-gray-700 font-medium">
+      <div className="bg-gradient-to-r from-accent/10 to-secondary/10 dark:from-accent/20 dark:to-secondary/20 rounded-xl p-4 mb-4">
+        <p className="text-gray-700 dark:text-gray-200 font-medium">
           "{nudge.message}"
         </p>
       </div>

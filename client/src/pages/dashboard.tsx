@@ -97,7 +97,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-slate-800">
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
       
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -106,7 +106,7 @@ export default function Dashboard() {
         <section className="text-center mb-12">
           <div className="gradient-text mb-4">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">Transform Your Life</h1>
-            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Get AI-powered insights to break through your recurring challenges and build lasting positive habits.
             </p>
           </div>
