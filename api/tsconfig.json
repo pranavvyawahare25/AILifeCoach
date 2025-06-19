@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../dist/api",
+    "noEmit": false,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["./client/src/*"],
+      "@shared/*": ["./shared/*"]
+    }
+  },
+  "include": ["./**/*", "../shared/**/*", "../server/**/*"],
+  "exclude": ["node_modules", "dist"]
+} 

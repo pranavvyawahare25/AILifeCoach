@@ -11,7 +11,7 @@ import {
   type InsertJournalEntry,
   type Nudge,
   type InsertNudge
-} from "@shared/schema";
+} from "../shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 

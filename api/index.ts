@@ -4,6 +4,7 @@ dotenv.config();
 
 import express from 'express';
 import { registerRoutes } from '../server/routes';
+import '../shared/schema'; // Ensure schema is loaded
 
 const app = express();
 app.use(express.json());

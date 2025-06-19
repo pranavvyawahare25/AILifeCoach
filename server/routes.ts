@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { geminiService } from "./services/gemini";
-import { insertSessionSchema, insertJournalEntrySchema } from "@shared/schema";
+import { insertSessionSchema, insertJournalEntrySchema } from "../shared/schema";
 import { z } from "zod";
 
 const analyzeProblemSchema = z.object({
