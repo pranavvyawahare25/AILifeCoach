@@ -4,20 +4,29 @@ import { storage } from "./storage";
 import { geminiService } from "./services/gemini";
 import { insertSessionSchema, insertJournalEntrySchema } from "../shared/schema";
 import { z } from "zod";
+import { requireAuth, extractUserId, type AuthenticatedRequest } from "./middleware/clerk-auth";
 
 const analyzeProblemSchema = z.object({
   problem: z.string().min(1, "Problem description is required"),
   duration: z.string().min(1, "Duration is required"),
-  impact: z.string().min(1, "Impact level is required"),
-  userId: z.number().optional().default(1), // Default user for demo
+  impact: z.string().min(1, "Impact level is required")
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // User info endpoint
+  app.get("/api/user", requireAuth, extractUserId, (req: AuthenticatedRequest, res) => {
+    res.json({
+      success: true,
+      userId: (req as any).userId
+    });
+  });
+  
   // Analyze problem endpoint
-  app.post("/api/analyze-problem", async (req, res) => {
+  app.post("/api/analyze-problem", requireAuth, extractUserId, async (req: AuthenticatedRequest, res) => {
     try {
-      const { problem, duration, impact, userId } = analyzeProblemSchema.parse(req.body);
+      const { problem, duration, impact } = analyzeProblemSchema.parse(req.body);
+      const userId = (req as any).userId;
       
       // Get AI analysis
       const analysis = await geminiService.analyzeProblem(problem, duration, impact);
@@ -50,11 +59,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Journal entry endpoint
-  app.post("/api/journal-entry", async (req, res) => {
+  app.post("/api/journal-entry", requireAuth, extractUserId, async (req: AuthenticatedRequest, res) => {
     try {
       const entryData = insertJournalEntrySchema.parse({
         ...req.body,
-        userId: req.body.userId || 1 // Default user for demo
+        userId: (req as any).userId
       });
       
       // Create initial journal entry
@@ -84,7 +93,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get today's nudge
-  app.get("/api/nudges", async (req, res) => {
+  app.get("/api/nudges", requireAuth, extractUserId, async (req: AuthenticatedRequest, res) => {
     try {
       const nudge = await storage.getTodaysNudge();
       
@@ -116,7 +125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get random nudge
-  app.post("/api/nudges/random", async (req, res) => {
+  app.post("/api/nudges/random", requireAuth, extractUserId, async (req: AuthenticatedRequest, res) => {
     try {
       const nudge = await storage.getRandomNudge();
       
@@ -148,9 +157,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user's session history
-  app.get("/api/history", async (req, res) => {
+  app.get("/api/history", requireAuth, extractUserId, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = parseInt(req.query.userId as string) || 1; // Default user for demo
+      const userId = (req as any).userId;
       const sessions = await storage.getSessionsByUserId(userId);
 
       res.json({
@@ -174,9 +183,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get user's journal entries
-  app.get("/api/journal", async (req, res) => {
+  app.get("/api/journal", requireAuth, extractUserId, async (req: AuthenticatedRequest, res) => {
     try {
-      const userId = parseInt(req.query.userId as string) || 1; // Default user for demo
+      const userId = (req as any).userId;
       const entries = await storage.getJournalEntriesByUserId(userId);
 
       res.json({
