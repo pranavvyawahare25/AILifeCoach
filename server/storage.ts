@@ -13,7 +13,7 @@ import {
   type InsertNudge
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
