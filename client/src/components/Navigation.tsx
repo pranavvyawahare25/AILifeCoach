@@ -2,7 +2,7 @@ import { Brain, Search, Book, History, Lightbulb, Menu, LogOut } from "lucide-re
 import { TabType } from "@/lib/types";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserButton, useUser } from '@clerk/clerk-react';
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { Button } from "./ui/button";
 import { 
   DropdownMenu,
@@ -18,7 +18,7 @@ interface NavigationProps {
 
 export default function Navigation({ activeTab, onTabChange }: NavigationProps) {
   const { isSignedIn } = useUser();
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   
   const tabs = [
     { id: 'analyze' as TabType, label: 'Analyze', icon: Search },
@@ -34,7 +34,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
           <div className="flex items-center space-x-2">
             <div 
               className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center cursor-pointer"
-              onClick={() => navigate("/")}
+              onClick={() => setLocation("/")}
             >
               <Brain className="text-white w-4 h-4" />
             </div>
@@ -62,10 +62,10 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
               <UserButton afterSignOutUrl="/" />
             ) : (
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" onClick={() => navigate("/sign-in")}>
+                <Button variant="ghost" onClick={() => setLocation("/sign-in")}>
                   Sign In
                 </Button>
-                <Button onClick={() => navigate("/sign-up")}>
+                <Button onClick={() => setLocation("/sign-up")}>
                   Sign Up
                 </Button>
               </div>
@@ -98,7 +98,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
             )}
             
             {!isSignedIn && (
-              <Button variant="ghost" onClick={() => navigate("/sign-in")}>
+              <Button variant="ghost" onClick={() => setLocation("/sign-in")}>
                 Sign In
               </Button>
             )}

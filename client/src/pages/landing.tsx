@@ -1,10 +1,10 @@
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Brain } from "lucide-react";
 
 export default function LandingPage() {
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
 
   return (
     <div className="min-h-screen bg-background">
@@ -20,8 +20,8 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center space-x-4">
               <ThemeToggle />
-              <Button variant="ghost" onClick={() => navigate("/sign-in")}>Sign In</Button>
-              <Button onClick={() => navigate("/sign-up")}>Sign Up</Button>
+              <Button variant="ghost" onClick={() => setLocation("/sign-in")}>Sign In</Button>
+              <Button onClick={() => setLocation("/sign-up")}>Sign Up</Button>
             </div>
           </div>
         </div>
@@ -37,10 +37,10 @@ export default function LandingPage() {
             Get personalized coaching, track your growth journey, and develop better habits with AI-powered insights.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button size="lg" onClick={() => navigate("/sign-up")} className="text-lg px-8 py-6">
+            <Button size="lg" onClick={() => setLocation("/sign-up")} className="text-lg px-8 py-6">
               Start Your Journey
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate("/sign-in")} className="text-lg px-8 py-6">
+            <Button size="lg" variant="outline" onClick={() => setLocation("/sign-in")} className="text-lg px-8 py-6">
               Sign In
             </Button>
           </div>
@@ -95,7 +95,7 @@ export default function LandingPage() {
           <Button 
             size="lg" 
             variant="secondary" 
-            onClick={() => navigate("/sign-up")}
+            onClick={() => setLocation("/sign-up")}
             className="bg-white text-primary hover:bg-gray-100 text-lg px-8 py-6"
           >
             Get Started for Free
