@@ -24,6 +24,8 @@ interface JournalReflection {
 export class GeminiService {
   private apiKey: string;
   private baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+  private maxRetries = 2;
+  private retryDelay = 1000; // 1 second
 
   constructor() {
     this.apiKey = process.env.GEMINI_API_KEY || '';
@@ -33,32 +35,51 @@ export class GeminiService {
     console.log("Gemini API Key:", this.apiKey ? "Set" : "Not set");
   }
 
-  private async makeRequest(prompt: string): Promise<string> {
-    const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
+  private async makeRequest(prompt: string, retryCount = 0): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}?key=${this.apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
           }]
-        }]
-      })
-    });
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error(`Gemini API error (${response.status}): ${errorText}`);
+        
+        // If we haven't exceeded max retries and it's a 429 (rate limit) or 5xx (server error)
+        if (retryCount < this.maxRetries && (response.status === 429 || response.status >= 500)) {
+          console.log(`Retrying request (${retryCount + 1}/${this.maxRetries})...`);
+          await new Promise(resolve => setTimeout(resolve, this.retryDelay * Math.pow(2, retryCount)));
+          return this.makeRequest(prompt, retryCount + 1);
+        }
+        
+        throw new Error(`Gemini API error: ${response.statusText}`);
+      }
+
+      const data: GeminiResponse = await response.json();
+      
+      if (!data.candidates || data.candidates.length === 0) {
+        throw new Error('No response from Gemini API');
+      }
+
+      return data.candidates[0].content.parts[0].text;
+    } catch (error) {
+      if (retryCount < this.maxRetries) {
+        console.log(`Request failed, retrying (${retryCount + 1}/${this.maxRetries})...`);
+        await new Promise(resolve => setTimeout(resolve, this.retryDelay * Math.pow(2, retryCount)));
+        return this.makeRequest(prompt, retryCount + 1);
+      }
+      throw error;
     }
-
-    const data: GeminiResponse = await response.json();
-    
-    if (!data.candidates || data.candidates.length === 0) {
-      throw new Error('No response from Gemini API');
-    }
-
-    return data.candidates[0].content.parts[0].text;
   }
 
   async analyzeProblem(problem: string, duration: string, impact: string): Promise<AnalysisResult> {
@@ -89,6 +110,7 @@ Make all advice highly specific, practical, and actionable. Focus on evidence-ba
       // Extract JSON from response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
+        console.error('Invalid response format from Gemini API:', response);
         throw new Error('Invalid response format from Gemini API');
       }
 
@@ -140,6 +162,7 @@ Be empathetic, insightful, and focus on practical wisdom that acknowledges the c
       // Extract JSON from response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
+        console.error('Invalid response format from Gemini API:', response);
         throw new Error('Invalid response format from Gemini API');
       }
 
