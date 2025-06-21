@@ -35,16 +35,16 @@ const RecentSessions = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+    <div className="bg-card rounded-2xl shadow-lg p-6 border border-border">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-gray-800">Recent Sessions</h3>
+        <h3 className="font-bold text-card-foreground">Recent Sessions</h3>
         <button className="text-primary hover:text-primary/80 text-sm font-medium">
           View All
         </button>
       </div>
       
       {recentSessions.length === 0 ? (
-        <div className="text-center py-6 text-gray-500">
+        <div className="text-center py-6 text-muted-foreground">
           <p className="text-sm">No sessions yet. Start by analyzing a challenge!</p>
         </div>
       ) : (
@@ -54,23 +54,23 @@ const RecentSessions = () => {
             const color = getColorForSession(session.title);
             
             const colorClasses = {
-              red: 'bg-red-100 text-red-600',
-              blue: 'bg-blue-100 text-blue-600',
-              green: 'bg-green-100 text-green-600',
-              gray: 'bg-gray-100 text-gray-600'
+              red: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
+              blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+              green: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+              gray: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
             };
 
             return (
               <div 
                 key={session.id}
-                className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer"
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClasses[color as keyof typeof colorClasses]}`}>
                   <Icon className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">{session.title}</p>
-                  <p className="text-xs text-gray-600">{session.date}</p>
+                  <p className="text-sm font-medium text-card-foreground truncate">{session.title}</p>
+                  <p className="text-xs text-muted-foreground">{session.date}</p>
                 </div>
               </div>
             );
@@ -106,7 +106,7 @@ export default function Dashboard() {
         <section className="text-center mb-12">
           <div className="gradient-text mb-4">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">Transform Your Life</h1>
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
               Get AI-powered insights to break through your recurring challenges and build lasting positive habits.
             </p>
           </div>
@@ -120,7 +120,7 @@ export default function Dashboard() {
             <Button 
               onClick={() => setActiveTab('history')}
               variant="outline"
-              className="border-gray-300 hover:border-primary text-gray-700 hover:text-primary px-8 py-3 rounded-xl font-semibold transition-all"
+              className="border-border hover:border-primary text-foreground hover:text-primary px-8 py-3 rounded-xl font-semibold transition-all"
             >
               View Demo
             </Button>
@@ -162,8 +162,8 @@ export default function Dashboard() {
             {/* Journal Tab */}
             {activeTab === 'journal' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Personal Journal</h2>
+                <div className="bg-card rounded-2xl shadow-lg p-6 border border-border">
+                  <h2 className="text-2xl font-bold text-card-foreground mb-6">Your Personal Journal</h2>
                   <Journal />
                 </div>
               </div>
@@ -172,8 +172,8 @@ export default function Dashboard() {
             {/* Nudges Tab */}
             {activeTab === 'nudges' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">Daily Motivation</h2>
+                <div className="bg-card rounded-2xl shadow-lg p-6 border border-border">
+                  <h2 className="text-2xl font-bold text-card-foreground mb-6">Daily Motivation</h2>
                   <DailyNudge />
                 </div>
               </div>

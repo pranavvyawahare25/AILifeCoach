@@ -10,17 +10,39 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-// Middleware to verify the Clerk session token
-export const requireAuth = ClerkExpressRequireAuth({
-  // If the token is invalid or missing, return a 401 Unauthorized response
-  onError: (err, req, res) => {
-    console.error('Authentication error:', err);
-    res.status(401).json({
-      success: false,
-      message: 'Authentication required'
-    });
+// Check if we're in development mode and should use mock auth
+const isDevelopment = process.env.NODE_ENV === 'development';
+const hasClerkSecret = !!process.env.CLERK_SECRET_KEY;
+
+// Mock authentication for development
+const mockAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  // Create a mock auth object for development
+  req.auth = {
+    userId: 'mock-user-id',
+    sessionId: 'mock-session-id',
+    getToken: async () => 'mock-token'
+  };
+  next();
+};
+
+// Middleware to verify the Clerk session token or use mock in development
+export const requireAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (isDevelopment && !hasClerkSecret) {
+    console.log('Using mock authentication in development mode');
+    return mockAuth(req, res, next);
   }
-});
+  
+  // Use real Clerk authentication
+  return ClerkExpressRequireAuth({
+    onError: (err, req, res) => {
+      console.error('Authentication error:', err);
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+  })(req, res, next);
+};
 
 // Helper middleware to extract the user ID and make it available in the request
 export const extractUserId = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -29,6 +51,12 @@ export const extractUserId = (req: AuthenticatedRequest, res: Response, next: Ne
       success: false,
       message: 'User ID not found in authenticated request'
     });
+  }
+  
+  // Handle mock user ID for development
+  if (req.auth.userId === 'mock-user-id') {
+    (req as any).userId = 1; // Use a fixed user ID for development
+    return next();
   }
   
   // Convert the Clerk user ID to a numeric ID for our database

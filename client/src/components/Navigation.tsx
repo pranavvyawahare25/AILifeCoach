@@ -10,6 +10,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "./ui/dropdown-menu";
+import { useMockAuth, MockUserButton } from './ClerkProvider';
+
+// Custom hook to safely use authentication
+function useAuth() {
+  const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  const isValidKey = publishableKey && publishableKey.startsWith('pk_') && publishableKey.length > 20 && !publishableKey.includes('placeholder');
+  
+  // Always call both hooks (React rule of hooks)
+  let clerkAuth = { isSignedIn: false };
+  let mockAuth = { isSignedIn: false };
+  
+  try {
+    clerkAuth = useUser();
+  } catch (error) {
+    // Clerk hook failed, will use mock
+  }
+  
+  try {
+    mockAuth = useMockAuth();
+  } catch (error) {
+    // Mock hook failed
+  }
+  
+  return {
+    isSignedIn: isValidKey ? clerkAuth.isSignedIn : mockAuth.isSignedIn,
+    UserButtonComponent: isValidKey ? UserButton : MockUserButton
+  };
+}
 
 interface NavigationProps {
   activeTab: TabType;
@@ -17,8 +45,8 @@ interface NavigationProps {
 }
 
 export default function Navigation({ activeTab, onTabChange }: NavigationProps) {
-  const { isSignedIn } = useUser();
   const [, setLocation] = useLocation();
+  const { isSignedIn, UserButtonComponent } = useAuth();
   
   const tabs = [
     { id: 'analyze' as TabType, label: 'Analyze', icon: Search },
@@ -59,7 +87,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
             <ThemeToggle />
             
             {isSignedIn ? (
-              <UserButton afterSignOutUrl="/" />
+              <UserButtonComponent afterSignOutUrl="/" />
             ) : (
               <div className="flex items-center space-x-2">
                 <Button variant="ghost" onClick={() => setLocation("/sign-in")}>
@@ -90,7 +118,7 @@ export default function Navigation({ activeTab, onTabChange }: NavigationProps) 
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuItem>
-                    <UserButton afterSignOutUrl="/" />
+                    <UserButtonComponent afterSignOutUrl="/" />
                     <span className="ml-2">Account</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>

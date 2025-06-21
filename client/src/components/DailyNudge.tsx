@@ -27,18 +27,18 @@ export default function DailyNudge() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+      <div className="bg-card rounded-2xl shadow-lg p-6 border border-border">
         <div className="animate-pulse">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+            <div className="w-10 h-10 bg-muted rounded-lg"></div>
             <div>
-              <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
-              <div className="h-3 bg-gray-200 rounded w-20"></div>
+              <div className="h-4 bg-muted rounded w-24 mb-1"></div>
+              <div className="h-3 bg-muted rounded w-20"></div>
             </div>
           </div>
-          <div className="bg-gray-100 rounded-xl p-4 mb-4">
-            <div className="h-4 bg-gray-200 rounded mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="bg-muted/50 rounded-xl p-4 mb-4">
+            <div className="h-4 bg-muted rounded mb-2"></div>
+            <div className="h-4 bg-muted rounded w-3/4"></div>
           </div>
         </div>
       </div>
@@ -47,8 +47,8 @@ export default function DailyNudge() {
 
   if (!nudge) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-        <div className="text-center text-gray-500">
+      <div className="bg-card rounded-2xl shadow-lg p-6 border border-border">
+        <div className="text-center text-muted-foreground">
           <Star className="w-8 h-8 mx-auto mb-2 opacity-50" />
           <p>No nudge available</p>
         </div>
@@ -57,19 +57,19 @@ export default function DailyNudge() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+    <div className="bg-card rounded-2xl shadow-lg p-6 border border-border">
       <div className="flex items-center space-x-3 mb-4">
-        <div className="w-10 h-10 bg-accent/10 dark:bg-accent/20 rounded-lg flex items-center justify-center">
+        <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
           <Star className="text-accent w-5 h-5" />
         </div>
         <div>
-          <h3 className="font-bold text-gray-800 dark:text-white">Today's Nudge</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-300">{nudge.date}</p>
+          <h3 className="font-bold text-card-foreground">Today's Nudge</h3>
+          <p className="text-sm text-muted-foreground">{nudge.date}</p>
         </div>
       </div>
       
-      <div className="bg-gradient-to-r from-accent/10 to-secondary/10 dark:from-accent/20 dark:to-secondary/20 rounded-xl p-4 mb-4">
-        <p className="text-gray-700 dark:text-gray-200 font-medium">
+      <div className="bg-gradient-to-r from-accent/10 to-secondary/10 rounded-xl p-4 mb-4">
+        <p className="text-card-foreground font-medium">
           "{nudge.message}"
         </p>
       </div>

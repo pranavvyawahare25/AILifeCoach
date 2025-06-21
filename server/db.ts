@@ -5,11 +5,36 @@ import * as schema from "../shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+let pool: Pool;
+let db: ReturnType<typeof drizzle>;
+
+// Initialize database connection lazily
+export function initializeDB() {
+  if (pool && db) {
+    return { pool, db };
+  }
+
+  // Get DATABASE_URL from environment variables
+  const DATABASE_URL = process.env.DATABASE_URL;
+
+  if (!DATABASE_URL) {
+    throw new Error("DATABASE_URL environment variable is not set");
+  }
+
+  // Clean up the DATABASE_URL by removing any newlines
+  pool = new Pool({ connectionString: DATABASE_URL.replace(/\n/g, '') });
+  db = drizzle({ client: pool, schema });
+  
+  return { pool, db };
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+// Export getters that initialize on first access
+export const getPool = () => {
+  const { pool } = initializeDB();
+  return pool;
+};
+
+export const getDB = () => {
+  const { db } = initializeDB();
+  return db;
+};

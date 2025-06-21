@@ -1,10 +1,12 @@
-import { db } from "./db";
+import { getDB } from "./db";
 import { users, nudges } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
 async function initializeDatabase() {
   try {
     console.log("Initializing database...");
+    
+    const db = getDB();
 
     // Create default user if it doesn't exist
     const existingUser = await db.select().from(users).where(eq(users.id, 1));

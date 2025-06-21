@@ -15,8 +15,30 @@ import LandingPage from "@/pages/landing";
 function Router() {
   return (
     <Switch>
-      <Route path="/sign-in" component={SignInPage} />
-      <Route path="/sign-up" component={SignUpPage} />
+      <Route path="/sign-in">
+        <SignInPage />
+      </Route>
+      <Route path="/sign-up">
+        <SignUpPage />
+      </Route>
+      <Route path="/sign-in/sso-callback">
+        <SignInPage />
+      </Route>
+      <Route path="/sign-up/sso-callback">
+        <SignUpPage />
+      </Route>
+      <Route path="/sign-in/continue">
+        <SignInPage />
+      </Route>
+      <Route path="/sign-up/continue">
+        <SignUpPage />
+      </Route>
+      <Route path="/sign-in/verify">
+        <SignInPage />
+      </Route>
+      <Route path="/sign-up/verify">
+        <SignUpPage />
+      </Route>
       <Route path="/" component={LandingPage} />
       <Route path="/dashboard">
         <ProtectedRoute>

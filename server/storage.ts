@@ -12,7 +12,7 @@ import {
   type Nudge,
   type InsertNudge
 } from "../shared/schema";
-import { db } from "./db";
+import { getDB } from "./db";
 import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
@@ -35,17 +35,17 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await getDB().select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+    const [user] = await getDB().select().from(users).where(eq(users.username, username));
     return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
+    const [user] = await getDB()
       .insert(users)
       .values(insertUser)
       .returning();
@@ -53,7 +53,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSession(insertSession: InsertSession): Promise<Session> {
-    const [session] = await db
+    const [session] = await getDB()
       .insert(sessions)
       .values(insertSession)
       .returning();
@@ -61,7 +61,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSessionsByUserId(userId: number): Promise<Session[]> {
-    return await db
+    return await getDB()
       .select()
       .from(sessions)
       .where(eq(sessions.userId, userId))
@@ -69,12 +69,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSession(id: number): Promise<Session | undefined> {
-    const [session] = await db.select().from(sessions).where(eq(sessions.id, id));
+    const [session] = await getDB().select().from(sessions).where(eq(sessions.id, id));
     return session || undefined;
   }
 
   async createJournalEntry(insertEntry: InsertJournalEntry): Promise<JournalEntry> {
-    const [entry] = await db
+    const [entry] = await getDB()
       .insert(journalEntries)
       .values(insertEntry)
       .returning();
@@ -82,7 +82,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getJournalEntriesByUserId(userId: number): Promise<JournalEntry[]> {
-    return await db
+    return await getDB()
       .select()
       .from(journalEntries)
       .where(eq(journalEntries.userId, userId))
@@ -90,7 +90,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateJournalEntry(id: number, updates: Partial<JournalEntry>): Promise<JournalEntry | undefined> {
-    const [updatedEntry] = await db
+    const [updatedEntry] = await getDB()
       .update(journalEntries)
       .set(updates)
       .where(eq(journalEntries.id, id))
@@ -99,7 +99,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTodaysNudge(): Promise<Nudge | undefined> {
-    const allNudges = await db.select().from(nudges);
+    const allNudges = await getDB().select().from(nudges);
     if (allNudges.length === 0) return undefined;
     
     // Simple daily nudge selection based on date
@@ -109,7 +109,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createNudge(insertNudge: InsertNudge): Promise<Nudge> {
-    const [nudge] = await db
+    const [nudge] = await getDB()
       .insert(nudges)
       .values(insertNudge)
       .returning();
@@ -117,7 +117,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRandomNudge(): Promise<Nudge | undefined> {
-    const allNudges = await db.select().from(nudges);
+    const allNudges = await getDB().select().from(nudges);
     if (allNudges.length === 0) return undefined;
     
     const randomIndex = Math.floor(Math.random() * allNudges.length);

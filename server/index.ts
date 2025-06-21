@@ -1,5 +1,10 @@
 import dotenv from "dotenv";
-dotenv.config();
+const result = dotenv.config();
+console.log("Dotenv config result:", result);
+console.log("Environment variables loaded:");
+console.log("DATABASE_URL:", process.env.DATABASE_URL ? "Set" : "Not set");
+console.log("GEMINI_API_KEY:", process.env.GEMINI_API_KEY ? "Set" : "Not set");
+console.log("CLERK_SECRET_KEY:", process.env.CLERK_SECRET_KEY ? "Set" : "Not set");
 
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
@@ -63,8 +68,7 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Serve the app on port 3000 (changed from 5000 due to conflict with system services)
-  // this serves both the API and the client.
+  // Serve both API and client on port 3000
   const port = 3000;
   server.listen({
     port,
